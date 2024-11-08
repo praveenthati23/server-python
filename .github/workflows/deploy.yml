@@ -23,9 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  # Install dependencies from requirements.txt
 
-      - name: Run Application
+      - name: Run Application with Gunicorn
         run: |
-          nohup python app.py &  # Run your application in the background
+          nohup gunicorn -w 4 -b 127.0.0.1:5000 app:app &  # Run Gunicorn with 4 worker processes
 
       - name: Health Check
         run: |
