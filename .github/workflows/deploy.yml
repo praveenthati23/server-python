@@ -25,6 +25,11 @@ jobs:
 
       - name: Run Application
         run: |
-          python app.py  # Run your Python application
+          nohup python app.py &  # Run your application in the background
 
-      # Optional: You can add additional deployment steps here if needed
+      - name: Health Check
+        run: |
+          sleep 10  # Give the server some time to start
+          curl -f http://127.0.0.1:5000 || exit 1  # Check if the app is running
+
+      # Optional: Add deployment steps or any other steps as needed
