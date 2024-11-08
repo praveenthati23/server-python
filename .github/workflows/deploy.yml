@@ -1,30 +1,27 @@
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches:
-      - master  # Trigger the workflow on push to the master branch
-
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Use the latest version of Ubuntu
-
+  deploy:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Set Up Python
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'  # Specify the Python version you are using
+          python-version: "3.8"
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Install dependencies from requirements.txt
+          pip install -r requirements.txt
 
-      - name: Run Application
+      - name: Run Application in Background
+        run: nohup gunicorn -w 4 -b 0.0.0.0:5000 app:app &
+
+      - name: Health Check
         run: |
-          python app.py  # Run your Python application
+          sleep 10
+          curl -f http://127.0.0.1:5000 || exit 1
 
-      # Optional: You can add additional deployment steps here if needed
+      - name: Terminate Flask Process
+        run: pkill -f gunicorn
